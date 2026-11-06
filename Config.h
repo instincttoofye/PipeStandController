@@ -11,7 +11,7 @@ constexpr int FAST = 275;
 const char* const ssid = "instinct home base";
 const char* const password = "flamingo.2";
 
-constexpr unsigned long MAX_RUN_TIME = 10000;
+constexpr unsigned long MAX_RUN_TIME = 60000;
 
 constexpr unsigned long RAMP_INTERVAL = 50;
 constexpr int RAMP_STEP = 10;

@@ -2,9 +2,13 @@
 #include "Config.h"
 #include "ServoController.h"
 #include "RequestHandler.h"
+#include "WiFiManager.h"
+#include "HttpClientHandler.h"
 
 ServoController servoController;
 RequestHandler requestHandler(servoController);
+HttpClientHandler httpClientHandler(requestHandler);
+WiFiManager wifiManager;
 
 WiFiServer server(80);
 
@@ -16,45 +20,18 @@ void setup() {
 
     servoController.begin();
 
-    WiFi.begin(ssid, password);
-
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print(".");
-    }
-
-    Serial.println("\nWiFi connected!");
-
-    IPAddress ip = WiFi.localIP();
-
-    while (ip == IPAddress(0, 0, 0, 0)) {
-        delay(500);
-        ip = WiFi.localIP();
-    }
-
-    Serial.print("Arduino IP: ");
-    Serial.println(ip);
+    wifiManager.begin();
 
     server.begin();
     Serial.println("HTTP Server Started");
 }
 
 void loop() {
-    servoController.update();
+  servoController.update();
 
-    WiFiClient client = server.available();
+  wifiManager.update();
 
-    if (!client) {
-        return;
-    }
-
-    client.setTimeout(1000);
-
-    String request = client.readStringUntil('\n');
-    request.trim();
-
-    requestHandler.handle(client, request);
-
-    client.flush();
-    client.stop();
+  if (WiFi.status() == WL_CONNECTED) {
+      httpClientHandler.update(server);
+  }
 }
